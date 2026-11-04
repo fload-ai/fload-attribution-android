@@ -4,7 +4,12 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
+    `maven-publish`
 }
+
+// JitPack builds a tag with -Pversion=<tag> and serves what publishToMavenLocal installs.
+val publishedVersion = project.version.toString()
+    .takeIf { it != "unspecified" } ?: "1.0.0"
 
 android {
     namespace = "com.fload.attribution"
@@ -30,6 +35,33 @@ android {
                 events("passed", "failed", "skipped")
                 exceptionFormat = TestExceptionFormat.FULL
                 showStandardStreams = true
+            }
+        }
+    }
+
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
+    }
+}
+
+publishing {
+    publications {
+        register<MavenPublication>("release") {
+            groupId = "com.github.fload-ai"
+            artifactId = "fload-attribution-android"
+            version = publishedVersion
+            afterEvaluate { from(components["release"]) }
+            pom {
+                name.set("Fload Attribution for Android")
+                url.set("https://github.com/fload-ai/fload-attribution-android")
+                licenses {
+                    license {
+                        name.set("MIT")
+                        url.set("https://opensource.org/licenses/MIT")
+                    }
+                }
             }
         }
     }

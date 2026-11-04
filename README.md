@@ -6,6 +6,29 @@ minSdk 24. One runtime dependency: Google's Play Install Referrer library
 (`com.android.installreferrer:installreferrer:2.2`), plus the Kotlin standard
 library.
 
+## Install
+
+The library is built by [JitPack](https://jitpack.io) from this repository's
+tags. Add the JitPack repository in `settings.gradle.kts`:
+
+```kotlin
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+        maven("https://jitpack.io")
+    }
+}
+```
+
+Then the dependency in your app module's `build.gradle.kts`:
+
+```kotlin
+dependencies {
+    implementation("com.github.fload-ai:fload-attribution-android:1.0.0")
+}
+```
+
 ## Use
 
 ```kotlin
@@ -90,3 +113,7 @@ cleartext to that host.
 Tests: `./gradlew :attribution:testDebugUnitTest` (plain JVM tests). The
 end-to-end test runs only when `FLOAD_E2E_ENDPOINT`, which must be localhost,
 and `FLOAD_E2E_KEY` are set.
+
+## License
+
+License: MIT. See [LICENSE](LICENSE).
