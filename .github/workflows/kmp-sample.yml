@@ -24,8 +24,9 @@ jobs:
       - name: Android app
         run: ./gradlew -p samples/kotlin-multiplatform :androidApp:assembleDebug
 
+      # arm64 only: the shared module builds iosSimulatorArm64, not the Intel simulator.
       - name: iOS app (simulator, builds the Shared framework through Gradle)
         run: |
           xcodebuild -project samples/kotlin-multiplatform/iosApp/iosApp.xcodeproj -scheme iosApp \
             -configuration Debug -destination 'generic/platform=iOS Simulator' \
-            -derivedDataPath build/dd build
+            -derivedDataPath build/dd ARCHS=arm64 build
