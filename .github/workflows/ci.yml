@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Unit tests
+        run: ./gradlew :attribution:testDebugUnitTest
+
+      - name: Maven Central publication (local, unsigned)
+        run: |
+          ./gradlew :attribution:publishToMavenLocal -Pversion=0.0.0-ci
+          dir="$HOME/.m2/repository/com/fload/attribution/0.0.0-ci"
+          for f in attribution-0.0.0-ci.aar attribution-0.0.0-ci.pom attribution-0.0.0-ci-sources.jar attribution-0.0.0-ci-javadoc.jar; do
+            test -s "$dir/$f" || { echo "missing $f"; exit 1; }
+          done
+          grep -q "<groupId>com.fload</groupId>" "$dir/attribution-0.0.0-ci.pom"
+
+      - name: JitPack publication (same coordinates as before)
+        env:
+          JITPACK: "true"
+        run: |
+          ./gradlew clean -Pversion=0.0.0-jitpack -xtest -xlint assemble publishToMavenLocal
+          test -s "$HOME/.m2/repository/com/github/fload-ai/fload-attribution-android/0.0.0-jitpack/fload-attribution-android-0.0.0-jitpack.aar"

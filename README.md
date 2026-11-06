@@ -8,8 +8,19 @@ library.
 
 ## Install
 
-The library is built by [JitPack](https://jitpack.io) from this repository's
-tags. Add the JitPack repository in `settings.gradle.kts`:
+From Maven Central, once `com.fload:attribution` is published there (see
+[PUBLISHING.md](PUBLISHING.md)). `mavenCentral()` is in every new Android
+project's repositories already:
+
+```kotlin
+dependencies {
+    implementation("com.fload:attribution:<version>")
+}
+```
+
+Until then, and for every tag, from [JitPack](https://jitpack.io), which
+builds the library from this repository's tags. Add the JitPack repository
+in `settings.gradle.kts`:
 
 ```kotlin
 dependencyResolutionManagement {
@@ -28,6 +39,8 @@ dependencies {
     implementation("com.github.fload-ai:fload-attribution-android:1.0.2")
 }
 ```
+
+Both are the same library. Use one, not both.
 
 ## Use
 
