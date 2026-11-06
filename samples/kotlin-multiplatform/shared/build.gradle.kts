@@ -16,7 +16,7 @@ kotlin {
         androidMain.dependencies {
             // Fload's Android SDK, called from androidMain. (Maven Central, once published:
             // com.fload:attribution.) The iOS app adds the Swift package itself.
-            implementation("com.github.fload-ai:fload-attribution-android:1.0.1")
+            implementation("com.github.fload-ai:fload-attribution-android:1.0.2")
         }
     }
 }

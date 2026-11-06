@@ -24,5 +24,5 @@ android {
 
 dependencies {
     implementation(project(":shared"))
-    implementation("com.github.fload-ai:fload-attribution-android:1.0.1")
+    implementation("com.github.fload-ai:fload-attribution-android:1.0.2")
 }

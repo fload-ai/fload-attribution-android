@@ -8,7 +8,7 @@ options:
 packages:
   FloadAttribution:
     url: https://github.com/fload-ai/fload-attribution-ios.git
-    from: 1.0.0
+    from: 1.0.2
 targets:
   iosApp:
     type: application
