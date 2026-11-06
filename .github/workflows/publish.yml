@@ -1,0 +1,59 @@
+name: Publish to Maven Central
+
+# Uploads com.fload:attribution:<tag> to the Sonatype Central Portal, signed.
+# The upload is not released automatically: someone presses Publish on
+# central.sonatype.com after checking it. Off until the repository variable
+# MAVEN_CENTRAL_ENABLED is "true"; see PUBLISHING.md for the one-time setup.
+
+on:
+  push:
+    tags: ["[0-9]+.[0-9]+.[0-9]+"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to publish, e.g. 1.0.2"
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: maven-central
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: vars.MAVEN_CENTRAL_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    # Holds the secrets; protect it with required reviewers in Settings > Environments.
+    environment: maven-central
+    env:
+      TAG: ${{ inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Check the tag and the SDK version agree
+        run: ./gradlew :attribution:verifySdkVersion -Pversion="$TAG"
+
+      - name: Unit tests
+        run: ./gradlew :attribution:testDebugUnitTest -Pversion="$TAG"
+
+      - name: Sign and upload to the Central Portal
+        env:
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_KEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_KEY_PASSWORD }}
+        run: |
+          for name in ORG_GRADLE_PROJECT_mavenCentralUsername ORG_GRADLE_PROJECT_mavenCentralPassword ORG_GRADLE_PROJECT_signingInMemoryKey ORG_GRADLE_PROJECT_signingInMemoryKeyPassword; do
+            [ -n "${!name}" ] || { echo "::error::$name is empty: set the maven-central environment's secrets (PUBLISHING.md)"; exit 1; }
+          done
+          ./gradlew :attribution:publishToMavenCentral -Pversion="$TAG" --no-configuration-cache
+          echo "Uploaded com.fload:attribution:$TAG. Check it and press Publish on https://central.sonatype.com/publishing/deployments" >> "$GITHUB_STEP_SUMMARY"
