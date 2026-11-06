@@ -63,6 +63,13 @@ From Java: `Fload.configure(this, "fload_pk_…");`.
 The key is your app's public write key from Fload. It can only report
 installs for that one app, so it is safe to ship in the APK.
 
+## Kotlin Multiplatform
+
+Use this SDK from `androidMain` and the Swift SDK from the iOS app, with a
+one-method interface between them and your shared code. The steps and a
+working sample are in
+[samples/kotlin-multiplatform](samples/kotlin-multiplatform/README.md).
+
 ## What it does
 
 - On the first launch with the SDK it makes a random install reference and
