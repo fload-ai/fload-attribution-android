@@ -9,7 +9,7 @@ plugins {
 
 // JitPack builds a tag with -Pversion=<tag> and serves what publishToMavenLocal installs.
 val publishedVersion = project.version.toString()
-    .takeIf { it != "unspecified" } ?: "1.0.0"
+    .takeIf { it != "unspecified" } ?: rootProject.file("VERSION").readText().trim()
 
 android {
     namespace = "com.fload.attribution"

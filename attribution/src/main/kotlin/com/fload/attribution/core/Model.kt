@@ -3,7 +3,7 @@ package com.fload.attribution.core
 /** The SDK's name and version, sent with every install. */
 internal object SdkInfo {
     const val NAME: String = "fload-attribution-android"
-    const val VERSION: String = "0.1.0"
+    const val VERSION: String = "1.0.2"
 }
 
 /** The app and device as they were on the install's first launch. */
