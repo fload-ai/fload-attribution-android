@@ -1,0 +1,36 @@
+# XcodeGen spec for the iOS app (xcodegen generate). The generated
+# iosApp.xcodeproj is committed, so xcodegen is only needed to change it.
+name: iosApp
+options:
+  bundleIdPrefix: com.fload.samples
+  deploymentTarget:
+    iOS: "15.0"
+packages:
+  FloadAttribution:
+    url: https://github.com/fload-ai/fload-attribution-ios.git
+    from: 1.0.0
+targets:
+  iosApp:
+    type: application
+    platform: iOS
+    sources: [iosApp]
+    dependencies:
+      - package: FloadAttribution
+      - framework: Shared.framework
+        embed: false
+    preBuildScripts:
+      - name: Build the shared Kotlin framework
+        basedOnDependencyAnalysis: false
+        script: |
+          cd "$SRCROOT/../../.."
+          ./gradlew -p samples/kotlin-multiplatform :shared:embedAndSignAppleFrameworkForXcode
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.fload.samples.kmp
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_FILE: iosApp/Info.plist
+        FRAMEWORK_SEARCH_PATHS: "$(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)"
+        OTHER_LDFLAGS: ["-framework", "Shared"]
+        ENABLE_USER_SCRIPT_SANDBOXING: NO
+        SWIFT_VERSION: "5.0"
+        CODE_SIGNING_ALLOWED: NO

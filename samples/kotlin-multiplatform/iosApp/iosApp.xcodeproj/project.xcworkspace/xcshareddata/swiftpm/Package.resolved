@@ -1,0 +1,15 @@
+{
+  "originHash" : "642b5fbfa11c31e8e332bcc653f46aa3e1cb93fa5da394fabb87faf293426656",
+  "pins" : [
+    {
+      "identity" : "fload-attribution-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/fload-ai/fload-attribution-ios.git",
+      "state" : {
+        "revision" : "809caae90cc1a4535a511f46f261db7b20254f15",
+        "version" : "1.0.0"
+      }
+    }
+  ],
+  "version" : 3
+}
