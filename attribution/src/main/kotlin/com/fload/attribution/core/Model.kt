@@ -3,7 +3,19 @@ package com.fload.attribution.core
 /** The SDK's name and version, sent with every install. */
 internal object SdkInfo {
     const val NAME: String = "fload-attribution-android"
-    const val VERSION: String = "1.0.2"
+    const val VERSION: String = "1.1.0"
+}
+
+/** The cross-platform wrapper around the SDK, as the wire names it (FLO-3957). */
+internal data class WrapperInfo(val name: String, val version: String) {
+    companion object {
+        /** Trimmed; a blank name or version names no wrapper. */
+        fun of(name: String, version: String): WrapperInfo? {
+            val trimmedName = name.trim()
+            val trimmedVersion = version.trim()
+            return if (trimmedName.isEmpty() || trimmedVersion.isEmpty()) null else WrapperInfo(trimmedName, trimmedVersion)
+        }
+    }
 }
 
 /** The app and device as they were on the install's first launch. */

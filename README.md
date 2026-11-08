@@ -63,6 +63,21 @@ From Java: `Fload.configure(this, "fload_pk_…");`.
 The key is your app's public write key from Fload. It can only report
 installs for that one app, so it is safe to ship in the APK.
 
+### For wrapper authors
+
+A cross-platform wrapper names itself, so Fload can tell which wrapper and
+version sent an install. Apps calling the SDK directly skip this.
+
+```kotlin
+Fload.configure(context, key, FloadOptions(wrapper = FloadWrapper(name = "flutter", version = "1.1.0")))
+```
+
+From Java: `new FloadOptions("https://ingest.fload.com", FloadLogLevel.WARNING, new FloadWrapper("unity", "1.1.0"))`.
+
+`name` is one of `flutter`, `react-native`, `capacitor`, `cordova`, `unity`,
+`dotnet`, `kmp`; `version` is the wrapper's own semver. Fload ignores a
+wrapper it does not know and still records the install.
+
 ## Kotlin Multiplatform
 
 Use this SDK from `androidMain` and the Swift SDK from the iOS app, with a

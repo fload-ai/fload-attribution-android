@@ -65,4 +65,6 @@ internal class Environment(
     val log: SdkLog,
     /** Wakes the engine when its next request is due; null in tests, which call `flush()` themselves. */
     val scheduler: Scheduler?,
+    /** The wrapper every request names, or null for an app calling the SDK directly. */
+    val wrapper: WrapperInfo? = null,
 )

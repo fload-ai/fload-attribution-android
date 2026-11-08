@@ -22,11 +22,19 @@ internal object Wire {
         "User-Agent" to "${SdkInfo.NAME}/${SdkInfo.VERSION}",
     )
 
+    /** This SDK, and the wrapper around it when there is one. */
+    fun sdk(wrapper: WrapperInfo?): Map<String, Any?> = linkedMapOf(
+        "name" to SdkInfo.NAME,
+        "version" to SdkInfo.VERSION,
+        "wrapper" to wrapper?.let { linkedMapOf("name" to it.name, "version" to it.version) },
+    )
+
     fun install(
         requestId: String,
         state: StoredState,
         referrer: ReferrerSnapshot,
         appUserId: String?,
+        wrapper: WrapperInfo? = null,
     ): ByteArray {
         val device = state.device
         return Json.write(
@@ -40,7 +48,7 @@ internal object Wire {
                 "osVersion" to device.osVersion,
                 "deviceModel" to device.deviceModel,
                 "locale" to device.locale,
-                "sdk" to linkedMapOf("name" to SdkInfo.NAME, "version" to SdkInfo.VERSION),
+                "sdk" to sdk(wrapper),
                 "firstLaunchAt" to timestamp(state.firstLaunchAt),
                 "playReferrer" to playReferrer(referrer),
                 "appUserId" to appUserId,
@@ -48,13 +56,15 @@ internal object Wire {
         ).toByteArray(Charsets.UTF_8)
     }
 
-    fun identify(requestId: String, installReference: String, appUserId: String): ByteArray =
+    /** `sdk` on identify is ignored by Fload servers older than FLO-3957. */
+    fun identify(requestId: String, installReference: String, appUserId: String, wrapper: WrapperInfo? = null): ByteArray =
         Json.write(
             linkedMapOf(
                 "requestId" to requestId,
                 "installReference" to installReference,
                 "platform" to PLATFORM,
                 "appUserId" to appUserId,
+                "sdk" to sdk(wrapper),
             ),
         ).toByteArray(Charsets.UTF_8)
 

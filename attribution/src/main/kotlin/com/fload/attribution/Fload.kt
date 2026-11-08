@@ -2,6 +2,7 @@ package com.fload.attribution
 
 import android.content.Context
 import com.fload.attribution.core.SdkInfo
+import com.fload.attribution.core.WrapperInfo
 
 /**
  * Fload install attribution.
@@ -56,7 +57,28 @@ public class FloadOptions @JvmOverloads constructor(
     public val endpoint: String = "https://ingest.fload.com",
     /** What the SDK writes to Logcat (tag `FloadAttribution`). */
     public val logLevel: FloadLogLevel = FloadLogLevel.WARNING,
+    /**
+     * The cross-platform wrapper around this SDK, set by the wrapper itself
+     * (Flutter, React Native, .NET...). Apps calling the SDK directly leave it null.
+     */
+    public val wrapper: FloadWrapper? = null,
 )
+
+/**
+ * The wrapper that calls this SDK, sent with every request as `sdk.wrapper`
+ * so Fload knows which wrapper, and which version of it, sent an install.
+ *
+ * For wrapper authors: [name] is one of `flutter`, `react-native`,
+ * `capacitor`, `cordova`, `unity`, `dotnet`, `kmp`, and [version] is the
+ * wrapper's own semver. Fload ignores a wrapper it does not know; the
+ * install is still recorded.
+ */
+public class FloadWrapper(
+    public val name: String,
+    public val version: String,
+)
+
+internal fun FloadOptions.wireWrapper(): WrapperInfo? = wrapper?.let { WrapperInfo.of(it.name, it.version) }
 
 /** The SDK's log level. It never logs the write key, the referrer or a user id. */
 public enum class FloadLogLevel {
