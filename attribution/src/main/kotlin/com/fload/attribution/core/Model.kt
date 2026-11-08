@@ -9,11 +9,18 @@ internal object SdkInfo {
 /** The cross-platform wrapper around the SDK, as the wire names it (FLO-3957). */
 internal data class WrapperInfo(val name: String, val version: String) {
     companion object {
-        /** Trimmed; a blank name or version names no wrapper. */
+        /**
+         * The contract's limit on each; a longer one would make Fload refuse
+         * the whole request, so the wrapper is left out instead.
+         */
+        const val MAX_LENGTH: Int = 64
+
+        /** Trimmed; a blank or overlong name or version names no wrapper. */
         fun of(name: String, version: String): WrapperInfo? {
             val trimmedName = name.trim()
             val trimmedVersion = version.trim()
-            return if (trimmedName.isEmpty() || trimmedVersion.isEmpty()) null else WrapperInfo(trimmedName, trimmedVersion)
+            val fits = { text: String -> text.isNotEmpty() && text.length <= MAX_LENGTH }
+            return if (fits(trimmedName) && fits(trimmedVersion)) WrapperInfo(trimmedName, trimmedVersion) else null
         }
     }
 }

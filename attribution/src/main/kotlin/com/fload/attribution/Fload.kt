@@ -51,18 +51,38 @@ public object Fload {
         get() = Runtime.installReference
 }
 
-/** How the SDK sends and logs. */
+/**
+ * How the SDK sends and logs.
+ *
+ * The primary constructor is 1.0's, unchanged, so a library compiled against
+ * 1.0 keeps linking; the wrapper comes through its own constructor.
+ */
 public class FloadOptions @JvmOverloads constructor(
     /** Fload's ingest endpoint. Change it only to test against your own Fload API. */
-    public val endpoint: String = "https://ingest.fload.com",
+    public val endpoint: String = DEFAULT_ENDPOINT,
     /** What the SDK writes to Logcat (tag `FloadAttribution`). */
     public val logLevel: FloadLogLevel = FloadLogLevel.WARNING,
+) {
     /**
      * The cross-platform wrapper around this SDK, set by the wrapper itself
      * (Flutter, React Native, .NET...). Apps calling the SDK directly leave it null.
      */
-    public val wrapper: FloadWrapper? = null,
-)
+    public var wrapper: FloadWrapper? = null
+        private set
+
+    /** For a cross-platform wrapper, which names itself. */
+    public constructor(
+        endpoint: String = DEFAULT_ENDPOINT,
+        logLevel: FloadLogLevel = FloadLogLevel.WARNING,
+        wrapper: FloadWrapper?,
+    ) : this(endpoint, logLevel) {
+        this.wrapper = wrapper
+    }
+
+    private companion object {
+        const val DEFAULT_ENDPOINT = "https://ingest.fload.com"
+    }
+}
 
 /**
  * The wrapper that calls this SDK, sent with every request as `sdk.wrapper`
