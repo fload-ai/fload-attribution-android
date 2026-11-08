@@ -101,6 +101,7 @@ internal class Harness(
 ) {
     val transport = FakeTransport()
     var now: Long = 1_800_000_000_000
+    var wrapper: WrapperInfo? = null
     private var ids = 0
 
     fun advance(ms: Long) {
@@ -119,6 +120,7 @@ internal class Harness(
             makeId = { "id-%08d".format(++ids) },
             log = log,
             scheduler = null,
+            wrapper = wrapper,
         )
 
     /** A launch: loads the stored state (or starts the install) and builds the engine. */

@@ -152,4 +152,18 @@ class ContractTest {
         assertEquals(6 * 3_600_000L, Backoff.delayMs(40, 1.0))
         assertEquals("jitter is clamped", 2_000, Backoff.delayMs(1, 7.0))
     }
+
+    @Test
+    fun identifyNamesTheSdkAndItsWrapperInTheContractsShape() {
+        val body = String(
+            Wire.identify("req-00000001", "ins-00000001", "u", WrapperInfo.of("react-native", "1.2.0")),
+            Charsets.UTF_8,
+        )
+        assertEquals(
+            "{\"requestId\":\"req-00000001\",\"installReference\":\"ins-00000001\",\"platform\":\"android\",\"appUserId\":\"u\"," +
+                "\"sdk\":{\"name\":\"fload-attribution-android\",\"version\":\"${SdkInfo.VERSION}\"," +
+                "\"wrapper\":{\"name\":\"react-native\",\"version\":\"1.2.0\"}}}",
+            body,
+        )
+    }
 }
