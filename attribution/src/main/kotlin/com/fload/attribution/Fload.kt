@@ -2,6 +2,7 @@ package com.fload.attribution
 
 import android.content.Context
 import com.fload.attribution.core.SdkInfo
+import com.fload.attribution.core.WrapperInfo
 
 /**
  * Fload install attribution.
@@ -50,13 +51,54 @@ public object Fload {
         get() = Runtime.installReference
 }
 
-/** How the SDK sends and logs. */
+/**
+ * How the SDK sends and logs.
+ *
+ * The primary constructor is 1.0's, unchanged, so a library compiled against
+ * 1.0 keeps linking; the wrapper comes through its own constructor.
+ */
 public class FloadOptions @JvmOverloads constructor(
     /** Fload's ingest endpoint. Change it only to test against your own Fload API. */
-    public val endpoint: String = "https://ingest.fload.com",
+    public val endpoint: String = DEFAULT_ENDPOINT,
     /** What the SDK writes to Logcat (tag `FloadAttribution`). */
     public val logLevel: FloadLogLevel = FloadLogLevel.WARNING,
+) {
+    /**
+     * The cross-platform wrapper around this SDK, set by the wrapper itself
+     * (Flutter, React Native, .NET...). Apps calling the SDK directly leave it null.
+     */
+    public var wrapper: FloadWrapper? = null
+        private set
+
+    /** For a cross-platform wrapper, which names itself. */
+    public constructor(
+        endpoint: String = DEFAULT_ENDPOINT,
+        logLevel: FloadLogLevel = FloadLogLevel.WARNING,
+        wrapper: FloadWrapper?,
+    ) : this(endpoint, logLevel) {
+        this.wrapper = wrapper
+    }
+
+    private companion object {
+        const val DEFAULT_ENDPOINT = "https://ingest.fload.com"
+    }
+}
+
+/**
+ * The wrapper that calls this SDK, sent with every request as `sdk.wrapper`
+ * so Fload knows which wrapper, and which version of it, sent an install.
+ *
+ * For wrapper authors: [name] is one of `flutter`, `react-native`,
+ * `capacitor`, `cordova`, `unity`, `dotnet`, `kmp`, and [version] is the
+ * wrapper's own semver. Fload ignores a wrapper it does not know; the
+ * install is still recorded.
+ */
+public class FloadWrapper(
+    public val name: String,
+    public val version: String,
 )
+
+internal fun FloadOptions.wireWrapper(): WrapperInfo? = wrapper?.let { WrapperInfo.of(it.name, it.version) }
 
 /** The SDK's log level. It never logs the write key, the referrer or a user id. */
 public enum class FloadLogLevel {

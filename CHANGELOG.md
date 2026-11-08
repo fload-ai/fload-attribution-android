@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.1.0
+
+- `FloadOptions(wrapper = FloadWrapper(name, version))`: a cross-platform
+  wrapper (Flutter, React Native, Capacitor, Cordova, Unity, .NET, KMP)
+  names itself, and every request carries it as `sdk.wrapper`. Apps calling
+  the SDK directly change nothing (FLO-3957). `FloadWrapper` is kept under
+  its own name for JNI callers. 1.0's constructors are unchanged, so a
+  library compiled against 1.0 keeps linking. A name or version over 64
+  characters is left out rather than risk the request.
+- Identify requests also carry `sdk`, so an install Fload first hears of
+  through an identify still knows its SDK. Older Fload servers ignore it.
+
 ## 1.0.2
 
 - Installs report `sdk.version` `1.0.2`. 1.0.0 and 1.0.1 reported `0.1.0`.

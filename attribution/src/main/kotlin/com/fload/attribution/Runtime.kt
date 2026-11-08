@@ -69,6 +69,7 @@ internal object Runtime {
             makeId = { UUID.randomUUID().toString() },
             log = log,
             scheduler = ExecutorScheduler(executor),
+            wrapper = options.wireWrapper(),
         )
         val state = Bootstrap.loadOrCreate(environment)
         if (state == null) {

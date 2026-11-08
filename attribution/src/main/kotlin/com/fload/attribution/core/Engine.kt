@@ -105,11 +105,11 @@ internal class Engine(
         when (request.kind) {
             RequestKind.INSTALL -> {
                 val referrer = referrerFor(request) ?: return Attempt.AwaitingReferrer
-                body = Wire.install(request.requestId, state, referrer, request.appUserId)
+                body = Wire.install(request.requestId, state, referrer, request.appUserId, env.wrapper)
                 path = Wire.INSTALLS_PATH
             }
             RequestKind.IDENTIFY -> {
-                body = Wire.identify(request.requestId, state.installReference, request.appUserId.orEmpty())
+                body = Wire.identify(request.requestId, state.installReference, request.appUserId.orEmpty(), env.wrapper)
                 path = Wire.IDENTIFY_PATH
             }
         }

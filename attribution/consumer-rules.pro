@@ -8,6 +8,9 @@
 -keep class com.fload.attribution.FloadOptions {
     public *;
 }
+-keep class com.fload.attribution.FloadWrapper {
+    public *;
+}
 -keep enum com.fload.attribution.FloadLogLevel {
     *;
 }

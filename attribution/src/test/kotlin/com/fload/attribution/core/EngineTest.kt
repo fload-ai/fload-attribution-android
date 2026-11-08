@@ -61,6 +61,43 @@ class EngineTest {
         assertNull(body["appUserId"])
     }
 
+    @Test
+    fun aWrapperIsNamedOnTheInstallAndEveryIdentify() {
+        val harness = Harness()
+        harness.wrapper = WrapperInfo.of("flutter", "1.1.0")
+        val engine = harness.launch()!!
+        engine.flush()
+        engine.setUserId("user-1")
+        engine.flush()
+
+        assertEquals(listOf("/attribution/v1/installs", "/attribution/v1/identify"), harness.transport.paths)
+        val sdk = mapOf(
+            "name" to "fload-attribution-android",
+            "version" to SdkInfo.VERSION,
+            "wrapper" to mapOf("name" to "flutter", "version" to "1.1.0"),
+        )
+        for (body in harness.transport.bodies) assertEquals(sdk, body["sdk"])
+    }
+
+    @Test
+    fun aNativeAppNamesNoWrapper() {
+        val harness = Harness()
+        val engine = harness.launch()!!
+        engine.flush()
+        engine.setUserId("user-1")
+        engine.flush()
+
+        val sdk = mapOf("name" to "fload-attribution-android", "version" to SdkInfo.VERSION)
+        for (body in harness.transport.bodies) assertEquals(sdk, body["sdk"])
+    }
+
+    @Test
+    fun aBlankWrapperIsLeftOut() {
+        assertNull(WrapperInfo.of("  ", "1.0.0"))
+        assertNull(WrapperInfo.of("unity", ""))
+        assertEquals(WrapperInfo("dotnet", "1.1.0"), WrapperInfo.of(" dotnet ", "1.1.0 "))
+    }
+
     // The referrer
 
     @Test
@@ -329,7 +366,7 @@ class EngineTest {
 
         assertEquals(listOf("/attribution/v1/installs", "/attribution/v1/identify"), harness.transport.paths)
         val identify = harness.transport.bodies.last()
-        assertEquals(setOf("requestId", "installReference", "platform", "appUserId"), identify.keys)
+        assertEquals(setOf("requestId", "installReference", "platform", "appUserId", "sdk"), identify.keys)
         assertEquals(engine.state.installReference, identify["installReference"])
         assertEquals("android", identify["platform"])
         assertEquals("user-1", identify["appUserId"])
