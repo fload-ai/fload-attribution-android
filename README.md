@@ -8,19 +8,20 @@ library.
 
 ## Install
 
-From Maven Central, once `com.fload:attribution` is published there (see
-[PUBLISHING.md](PUBLISHING.md)). `mavenCentral()` is in every new Android
-project's repositories already:
+From Maven Central. `google()` and `mavenCentral()` are in every new Android
+project's repositories already (`google()` serves the Install Referrer
+library), so only the dependency goes in your app module's
+`build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("com.fload:attribution:<version>")
+    implementation("com.fload:attribution:1.1.0")
 }
 ```
 
-Until then, and for every tag, from [JitPack](https://jitpack.io), which
-builds the library from this repository's tags. Add the JitPack repository
-in `settings.gradle.kts`:
+Or from [JitPack](https://jitpack.io), which builds every tag of this
+repository, under its older coordinates. Add the JitPack repository in
+`settings.gradle.kts`:
 
 ```kotlin
 dependencyResolutionManagement {
@@ -32,15 +33,16 @@ dependencyResolutionManagement {
 }
 ```
 
-Then the dependency in your app module's `build.gradle.kts`:
+Then:
 
 ```kotlin
 dependencies {
-    implementation("com.github.fload-ai:fload-attribution-android:1.0.2")
+    implementation("com.github.fload-ai:fload-attribution-android:1.1.0")
 }
 ```
 
-Both are the same library. Use one, not both.
+Both are the same library. Use one, not both. Maven Central has 1.1.0 and
+later; earlier versions are on JitPack only.
 
 ## Use
 

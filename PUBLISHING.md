@@ -102,7 +102,8 @@ gh workflow run publish.yml -R fload-ai/fload-attribution-android --ref 1.1.0 -f
 A run uses the workflow and the build files **as they are at that tag**.
 Tags up to 1.1.0 predate `automaticRelease = true`: their upload stops at
 Validated in the portal, and someone with the portal sign-in presses
-Publish there.
+Publish there. 1.1.0, the first version on Maven Central, was released that
+way on 9 Nov 2026 (run 42619106699).
 
 ## Checking a publication locally
 
