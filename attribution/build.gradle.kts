@@ -63,8 +63,9 @@ mavenPublishing {
         coordinates("com.fload", "attribution", publishedVersion)
         // Uploads to the Sonatype Central Portal. Needs mavenCentralUsername and
         // mavenCentralPassword (a Central Portal user token) as Gradle properties.
-        // automaticRelease = false: the upload waits in the portal until someone presses Publish.
-        publishToMavenCentral(automaticRelease = false)
+        // automaticRelease = true: the portal releases the upload once it validates. The release
+        // gate is the approval of the maven-central environment in publish.yml, given per version.
+        publishToMavenCentral(automaticRelease = true)
         // Maven Central requires signed artifacts. Signs only when a key is configured
         // (signingInMemoryKey and signingInMemoryKeyPassword), so local builds need none.
         if (project.hasProperty("signingInMemoryKey")) {

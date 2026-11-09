@@ -21,12 +21,12 @@ platform code in every KMP project anyway.
    of the shared module, or the Android app):
 
    ```kotlin
-   implementation("com.github.fload-ai:fload-attribution-android:1.0.2")
-   // Maven Central, once published: implementation("com.fload:attribution:<version>")
+   implementation("com.fload:attribution:1.1.0")
    ```
 
-   with `maven("https://jitpack.io")` in your repositories for the JitPack
-   line.
+   from Maven Central. (Or JitPack:
+   `com.github.fload-ai:fload-attribution-android:1.1.0`, with
+   `maven("https://jitpack.io")` in your repositories.)
 
 2. **iOS.** In Xcode, File > Add Package Dependencies,
    `https://github.com/fload-ai/fload-attribution-ios.git`, from `1.0.2`, and

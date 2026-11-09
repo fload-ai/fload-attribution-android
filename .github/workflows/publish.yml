@@ -1,9 +1,10 @@
 name: Publish to Maven Central
 
-# Uploads com.fload:attribution:<tag> to the Sonatype Central Portal, signed.
-# The upload is not released automatically: someone presses Publish on
-# central.sonatype.com after checking it. Off until the repository variable
-# MAVEN_CENTRAL_ENABLED is "true"; see PUBLISHING.md for the one-time setup.
+# Uploads com.fload:attribution:<tag> to the Sonatype Central Portal, signed,
+# and the portal releases it once it validates (automaticRelease = true).
+# The release gate is the approval of the maven-central environment, given
+# per version. Off until the repository variable MAVEN_CENTRAL_ENABLED is
+# "true"; see PUBLISHING.md for the one-time setup.
 
 on:
   push:
@@ -11,7 +12,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Tag to publish, e.g. 1.0.2"
+        description: "Tag to publish, e.g. 1.1.0. Run the workflow on that same tag (Use workflow from > Tags)."
         required: true
 
 permissions:
@@ -22,17 +23,33 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  publish:
+  # Outside the environment, so a wrong run fails here with a clear message
+  # before anyone is asked to approve it. The maven-central environment only
+  # accepts tags, and the version approved must be the version published.
+  check-ref:
     if: vars.MAVEN_CENTRAL_ENABLED == 'true'
     runs-on: ubuntu-latest
-    # Holds the secrets; protect it with required reviewers in Settings > Environments.
+    steps:
+      - name: The run is on the tag it publishes
+        env:
+          TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          if [ "$GITHUB_REF_TYPE" != "tag" ] || [ "$GITHUB_REF_NAME" != "$TAG" ]; then
+            echo "::error::This run is on $GITHUB_REF_TYPE $GITHUB_REF_NAME but would publish $TAG. Run it on the tag: gh workflow run publish.yml --ref $TAG -f tag=$TAG"
+            exit 1
+          fi
+
+  publish:
+    needs: check-ref
+    runs-on: ubuntu-latest
+    # Holds the secrets and the release gate: a required reviewer approves each version.
     environment: maven-central
     env:
-      TAG: ${{ inputs.tag || github.ref_name }}
+      TAG: ${{ github.ref_name }}
     steps:
       - uses: actions/checkout@v5
         with:
-          ref: ${{ inputs.tag || github.ref }}
+          ref: ${{ github.ref }}
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
@@ -45,7 +62,7 @@ jobs:
       - name: Unit tests
         run: ./gradlew :attribution:testDebugUnitTest -Pversion="$TAG"
 
-      - name: Sign and upload to the Central Portal
+      - name: Sign, upload and release on the Central Portal
         env:
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
@@ -56,4 +73,4 @@ jobs:
             [ -n "${!name}" ] || { echo "::error::$name is empty: set the maven-central environment's secrets (PUBLISHING.md)"; exit 1; }
           done
           ./gradlew :attribution:publishToMavenCentral -Pversion="$TAG" --no-configuration-cache
-          echo "Uploaded com.fload:attribution:$TAG. Check it and press Publish on https://central.sonatype.com/publishing/deployments" >> "$GITHUB_STEP_SUMMARY"
+          echo "Uploaded com.fload:attribution:$TAG; the portal releases it once it validates. Follow it on https://central.sonatype.com/publishing/deployments" >> "$GITHUB_STEP_SUMMARY"
