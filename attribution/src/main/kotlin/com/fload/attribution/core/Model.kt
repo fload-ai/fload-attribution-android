@@ -3,7 +3,7 @@ package com.fload.attribution.core
 /** The SDK's name and version, sent with every install. */
 internal object SdkInfo {
     const val NAME: String = "fload-attribution-android"
-    const val VERSION: String = "1.1.0"
+    const val VERSION: String = "1.2.0"
 }
 
 /** The cross-platform wrapper around the SDK, as the wire names it (FLO-3957). */
@@ -151,8 +151,12 @@ internal object Text {
         return if (trimmed.isEmpty()) null else cut(trimmed, SHORT_TEXT_LIMIT)
     }
 
-    /** FLO-4496: Android's `firstInstallTime`; not implemented yet (red-first commit). */
-    fun installedAt(firstInstallTime: Long): Long? = TODO("FLO-4496")
+    /**
+     * When the app was first installed on the device (FLO-4496): Android's
+     * `PackageInfo.firstInstallTime`, which an update keeps. 0 or less is
+     * Android not saying, so unknown.
+     */
+    fun installedAt(firstInstallTime: Long): Long? = firstInstallTime.takeIf { it > 0 }
 
     fun appId(packageName: String?): String {
         val trimmed = packageName?.trim().orEmpty()
