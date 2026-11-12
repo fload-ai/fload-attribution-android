@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.2.0
+
+- The install says when the app was first installed on the device:
+  `originalInstallAt`, from `PackageInfo.firstInstallTime`, which an update
+  keeps (FLO-4496). An existing user's first launch of the first build with
+  the SDK is an install too; with this, Fload counts those users apart from
+  new downloads. Left out when Android does not say. Fload servers before
+  FLO-4496 ignore it.
+- The state file moves to version 2, which appends that time; 1.1.0's
+  version 1 file still loads.
+- No API change.
+
 ## 1.1.0
 
 - `FloadOptions(wrapper = FloadWrapper(name, version))`: a cross-platform

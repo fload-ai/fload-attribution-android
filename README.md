@@ -89,7 +89,8 @@ working sample are in
 
 - On the first launch with the SDK it makes a random install reference and
   reports the install once: package name, version name and code, Android
-  version, device maker and model, locale, first-launch time, and what Play's
+  version, device maker and model, locale, first-launch time, when the app
+  was first installed on the device (from 1.2.0: `firstInstallTime`), and what Play's
   Install Referrer API returns (the referrer string, the click and
   install-begin times, the install version and the Instant flag). Fload
   parses the referrer on the server.
@@ -117,7 +118,10 @@ logs the key, the referrer or the user id.
 ## Notes
 
 - **Existing users:** the first launch of an app version with the SDK counts
-  as an install, for existing users too.
+  as an install, for existing users too. From 1.2.0 the install also says
+  when the app was first installed on the device (`firstInstallTime`, which
+  survives updates), so Fload counts existing users updating to the SDK
+  build apart from new downloads.
 - **Reinstalls** and devices restored from a backup are new installs.
 - Installs from outside Play (sideloads, other stores) have no referrer.
 
@@ -134,7 +138,8 @@ Users can't opt out inside the SDK; your app decides whether to call
 - **User IDs:** your app's user ID, only when you call `setUserId`.
 - **App info and performance, other (install attribution):** the Play
   Install Referrer (the campaign the install came from, and click and
-  install times), app version, Android version, device model and locale.
+  install times), app version, Android version, device model, locale and,
+  from 1.2.0, when the app was first installed on the device.
 
 ## Testing against your own API
 

@@ -6,6 +6,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import java.io.ByteArrayOutputStream
+import java.io.DataOutputStream
 import java.io.File
 
 class StorageTest {
@@ -15,7 +17,7 @@ class StorageTest {
     private fun fullState() = StoredState(
         installReference = "ins-00000001",
         firstLaunchAt = 1_800_000_000_123,
-        device = FIXTURE_DEVICE.copy(locale = null),
+        device = FIXTURE_DEVICE.copy(locale = null, originalInstallAt = 1_700_000_000_500),
         queue = listOf(
             QueuedRequest("req-00000001", RequestKind.INSTALL, 1_800_000_000_123, 2, 1_800_000_010_000, "user-1", 1),
             QueuedRequest("req-00000002", RequestKind.IDENTIFY, 1_800_000_000_500, nextAttemptAt = 1_800_000_000_500, appUserId = "ü 👍"),
@@ -40,6 +42,31 @@ class StorageTest {
         val minimal = state.copy(referrer = null, lastUserId = null, revokedKeys = emptySet(), refusedKeys = emptyMap(), queue = emptyList())
         store.save(minimal)
         assertEquals(LoadResult.Loaded(minimal), store.load())
+    }
+
+    @Test
+    fun aFileFromBeforeTheFirstInstallTimeStillLoads() {
+        // Version 1, as 1.1.0 wrote it: no first install time (FLO-4496).
+        val bytes = ByteArrayOutputStream()
+        DataOutputStream(bytes).use { out ->
+            out.writeInt(0x464C4441)
+            out.writeInt(1)
+            out.writeUTF("ins-00000001")
+            out.writeLong(1_800_000_000_123)
+            out.writeUTF("com.example.app")
+            repeat(5) { out.writeBoolean(false) } // appVersion … locale
+            out.writeInt(0) // queue
+            out.writeBoolean(false) // referrer
+            out.writeBoolean(false) // lastUserId
+            out.writeInt(0) // revokedKeys
+            out.writeInt(0) // refusedKeys
+        }
+        val store = FileStateStore(folder.root)
+        store.file.writeBytes(bytes.toByteArray())
+        assertEquals(
+            LoadResult.Loaded(StoredState("ins-00000001", 1_800_000_000_123, DeviceFacts("com.example.app"), emptyList())),
+            store.load(),
+        )
     }
 
     @Test

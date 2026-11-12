@@ -50,6 +50,8 @@ internal object Wire {
                 "locale" to device.locale,
                 "sdk" to sdk(wrapper),
                 "firstLaunchAt" to timestamp(state.firstLaunchAt),
+                // FLO-4496; left out when unknown, ignored by older Fload servers.
+                "originalInstallAt" to device.originalInstallAt?.let(::timestamp),
                 "playReferrer" to playReferrer(referrer),
                 "appUserId" to appUserId,
             ),

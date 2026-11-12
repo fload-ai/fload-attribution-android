@@ -16,7 +16,7 @@ class ContractTest {
     private val installKeys = setOf(
         "requestId", "installReference", "platform", "appId", "appVersion", "appBuild",
         "osVersion", "deviceModel", "locale", "sdk", "firstLaunchAt", "appleAds",
-        "playReferrer", "appUserId",
+        "playReferrer", "appUserId", "originalInstallAt", "originalAppVersion",
     )
     private val playKeys = setOf(
         "status", "referrer", "referrerClickAt", "installBeginAt", "referrerClickServerAt",
@@ -34,6 +34,7 @@ class ContractTest {
             osVersion = "o".repeat(64),
             deviceModel = "d".repeat(64),
             locale = "l".repeat(64),
+            originalInstallAt = 1_700_000_000_000,
         ),
         queue = emptyList(),
     )
@@ -53,6 +54,30 @@ class ContractTest {
         assertTrue(playKeys.containsAll(play.keys))
         assertEquals(1024, (play["referrer"] as String).length)
         assertEquals(64, (play["installVersion"] as String).length)
+    }
+
+    @Test
+    fun theInstallSaysWhenTheAppWasFirstInstalledOnTheDevice() {
+        val state = longest().let { it.copy(device = it.device.copy(originalInstallAt = 1_700_000_000_500)) }
+        val body = TestJson.parseObject(
+            String(Wire.install("req-00000001", state, ReferrerSnapshot(ReferrerStatus.ERROR), null), Charsets.UTF_8),
+        )
+        assertEquals("2023-11-14T22:13:20.500Z", body["originalInstallAt"])
+        // Android keeps no record of the first install's version.
+        assertFalse(body.containsKey("originalAppVersion"))
+
+        val unknown = state.copy(device = state.device.copy(originalInstallAt = null))
+        val withoutIt = TestJson.parseObject(
+            String(Wire.install("req-00000001", unknown, ReferrerSnapshot(ReferrerStatus.ERROR), null), Charsets.UTF_8),
+        )
+        assertFalse(withoutIt.containsKey("originalInstallAt"))
+    }
+
+    @Test
+    fun aFirstInstallTimeAndroidDidNotRecordIsUnknown() {
+        assertEquals(1_700_000_000_000L, Text.installedAt(1_700_000_000_000))
+        assertNull(Text.installedAt(0))
+        assertNull(Text.installedAt(-1))
     }
 
     @Test

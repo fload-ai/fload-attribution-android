@@ -47,7 +47,8 @@ internal class FileStateStore(private val directory: File) : StateStore {
  */
 internal object StateCodec {
     private const val MAGIC = 0x464C4441 // "FLDA"
-    private const val VERSION = 1
+    /** 2 (1.2.0, FLO-4496) appends the device's first install time. */
+    private const val VERSION = 2
 
     fun encode(state: StoredState): ByteArray {
         val bytes = ByteArrayOutputStream()
@@ -69,6 +70,8 @@ internal object StateCodec {
                 out.writeUTF(key)
                 out.writeLong(until)
             }
+            out.writeBoolean(state.device.originalInstallAt != null)
+            state.device.originalInstallAt?.let(out::writeLong)
         }
         return bytes.toByteArray()
     }
@@ -86,7 +89,17 @@ internal object StateCodec {
             val lastUserId = readNullable(input)
             val revoked = List(count(input)) { input.readUTF() }.toSet()
             val refused = List(count(input)) { input.readUTF() to input.readLong() }.toMap()
-            return StoredState(installReference, firstLaunchAt, device, queue, referrer, lastUserId, revoked, refused)
+            val installedAt = if (version >= 2 && input.readBoolean()) input.readLong() else null
+            return StoredState(
+                installReference,
+                firstLaunchAt,
+                device.copy(originalInstallAt = installedAt),
+                queue,
+                referrer,
+                lastUserId,
+                revoked,
+                refused,
+            )
         }
     }
 

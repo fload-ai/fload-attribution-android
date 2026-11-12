@@ -26,6 +26,7 @@ internal object AndroidDevice {
             osVersion = Text.shortText(Build.VERSION.RELEASE),
             deviceModel = Text.deviceModel(Build.MANUFACTURER, Build.MODEL),
             locale = Text.shortText(Locale.getDefault().toLanguageTag()),
+            originalInstallAt = info?.firstInstallTime?.let(Text::installedAt),
         )
     }
 
