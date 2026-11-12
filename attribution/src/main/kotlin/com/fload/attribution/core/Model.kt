@@ -33,6 +33,8 @@ internal data class DeviceFacts(
     val osVersion: String? = null,
     val deviceModel: String? = null,
     val locale: String? = null,
+    /** When the app was first installed on this device, epoch ms, if known (FLO-4496). */
+    val originalInstallAt: Long? = null,
 )
 
 /** The contract's `playReferrer.status`. */
@@ -148,6 +150,9 @@ internal object Text {
         val trimmed = value?.trim().orEmpty()
         return if (trimmed.isEmpty()) null else cut(trimmed, SHORT_TEXT_LIMIT)
     }
+
+    /** FLO-4496: Android's `firstInstallTime`; not implemented yet (red-first commit). */
+    fun installedAt(firstInstallTime: Long): Long? = TODO("FLO-4496")
 
     fun appId(packageName: String?): String {
         val trimmed = packageName?.trim().orEmpty()
